@@ -61,7 +61,7 @@ debug:
 	halt
 
 
-.pos 0x128
+.pos 0x100
 Stack:
 
 

@@ -1,5 +1,5 @@
                             | # Initial code
-0x000: 30f42801000000000000 | 	irmovq Stack,%rsp
+0x000: 30f40001000000000000 | 	irmovq Stack,%rsp
 0x00a: 30f20300000000000000 | 	irmovq $3,%rdx		# len, third argument
 0x014: 30f65800000000000000 | 	irmovq dest,%rsi	# dest, second argument
 0x01e: 30f74000000000000000 | 	irmovq src,%rdi		# src, first argument
@@ -61,8 +61,8 @@
 0x0c9: 00                   | 	halt
                             | 
                             | 
-0x128:                      | .pos 0x128
-0x128:                      | Stack:
+0x100:                      | .pos 0x100
+0x100:                      | Stack:
                             | 
                             | 
                             | 
