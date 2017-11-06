@@ -23,7 +23,13 @@ sum_list:
 	andq %rdi,%rdi		# ls == 0?
 	je done			# Yes, goto done
 loop:
-	# FILL IN HERE
+
+	mrmovq (%rdi), %rcx	# store ls->val to %rcx
+	addq %rcx, %rax		# val += ls->val
+
+	mrmovq 8(%rdi), %rdi	# ls = ls->next
+
+	andq %rdi, %rdi		# ls == 0?
 	jne loop	        # If null, goto done
 done:	ret			# return
 

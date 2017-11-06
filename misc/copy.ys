@@ -1,9 +1,11 @@
 # Initial code
 	irmovq Stack,%rsp
-	irmovq $3,%rdx
-	irmovq dest,%rsi
-	irmovq src,%rdi
+	irmovq $3,%rdx		# len, third argument
+	irmovq dest,%rsi	# dest, second argument
+	irmovq src,%rdi		# src, first argument
+	pushq %r8
 	call copy_block
+	popq %r8
 	halt
 
 .align 8
@@ -22,10 +24,40 @@ dest:
 # long copy_block(long *src, long *dest, long len)
 # src in %rdi, dest in %rsi, len in %rdx
 copy_block:
-	# FILL IN HERE
-	ret			# Return
+	pushq %rbx
+	xorq %rax, %rax		# result = 0
+	xorq %r8, %r8		# %r8 = 0
+	subq %r8, %rdx		# len - 0
+#	irmovq $1, %r8
+#	addq %r8, %rdx
+	je done
 
-.pos 0x100
+loop:
+xorq %rbx, %rbx
+	mrmovq (%rdi), %rbx	# val(%rbx) = *src
+	irmovq $8, %r8
+	addq  %r8, %rdi		# src++	
+
+	rmmovq %rbx, (%rsi)	# *dest = val
+	irmovq $8, %r8
+	addq %r8, %rsi		# dest++
+
+	xorq %rbx, %rax		# result ^= val
+
+#	irmovq $1, %r8	used as the loop counter
+#	addq %r8, %r9
+	
+	irmovq $1, %r8
+	subq %r8, %rdx		# len--
+	jne loop
+done:
+	popq %rbx
+	ret			# Return
+debug:
+	halt
+
+
+.pos 0x128
 Stack:
 
 
