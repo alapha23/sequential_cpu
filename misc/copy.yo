@@ -1,60 +1,64 @@
                             | # Initial code
 0x000: 30f42801000000000000 | 	irmovq Stack,%rsp
 0x00a: 30f20300000000000000 | 	irmovq $3,%rdx		# len, third argument
-0x014: 30f65000000000000000 | 	irmovq dest,%rsi	# dest, second argument
-0x01e: 30f73800000000000000 | 	irmovq src,%rdi		# src, first argument
+0x014: 30f65800000000000000 | 	irmovq dest,%rsi	# dest, second argument
+0x01e: 30f74000000000000000 | 	irmovq src,%rdi		# src, first argument
 0x028: a08f                 | 	pushq %r8
-0x02a: 806800000000000000   | 	call copy_block
-0x033: b08f                 | 	popq %r8
-0x035: 00                   | 	halt
+0x02a: a06f                 | 	pushq %rsi
+0x02c: a07f                 | 	pushq %rdi
+0x02e: 807000000000000000   | 	call copy_block
+0x037: b07f                 | 	popq %rdi
+0x039: b06f                 | 	popq %rsi
+0x03b: b08f                 | 	popq %r8
+0x03d: 00                   | 	halt
                             | 
-0x038:                      | .align 8
+0x040:                      | .align 8
                             | # Source array
-0x038:                      | src:
-0x038: 0a00000000000000     | 	.quad 0x00a
-0x040: b000000000000000     | 	.quad 0x0b0
-0x048: 000c000000000000     | 	.quad 0xc00
+0x040:                      | src:
+0x040: 0a00000000000000     | 	.quad 0x00a
+0x048: b000000000000000     | 	.quad 0x0b0
+0x050: 000c000000000000     | 	.quad 0xc00
                             | 
                             | # Destination array
-0x050:                      | dest:
-0x050: 1101000000000000     | 	.quad 0x111
-0x058: 2202000000000000     | 	.quad 0x222
-0x060: 3303000000000000     | 	.quad 0x333
+0x058:                      | dest:
+0x058: 1101000000000000     | 	.quad 0x111
+0x060: 2202000000000000     | 	.quad 0x222
+0x068: 3303000000000000     | 	.quad 0x333
                             | 
                             | # long copy_block(long *src, long *dest, long len)
                             | # src in %rdi, dest in %rsi, len in %rdx
-0x068:                      | copy_block:
-0x068: a03f                 | 	pushq %rbx
-0x06a: 6300                 | 	xorq %rax, %rax		# result = 0
-0x06c: 6388                 | 	xorq %r8, %r8		# %r8 = 0
-0x06e: 6182                 | 	subq %r8, %rdx		# len - 0
+0x070:                      | copy_block:
+0x070: a03f                 | 	pushq %rbx
+0x072: 6300                 | 	xorq %rax, %rax		# result = 0
+0x074: 6388                 | 	xorq %r8, %r8		# %r8 = 0
+0x076: 6182                 | 	subq %r8, %rdx		# len - 0
                             | #	irmovq $1, %r8
                             | #	addq %r8, %rdx
-0x070: 73be00000000000000   | 	je done
+0x078: 73c600000000000000   | 	je done
                             | 
-0x079:                      | loop:
-0x079: 6333                 | xorq %rbx, %rbx
-0x07b: 50370000000000000000 | 	mrmovq (%rdi), %rbx	# val(%rbx) = *src
-0x085: 30f80800000000000000 | 	irmovq $8, %r8
-0x08f: 6087                 | 	addq  %r8, %rdi		# src++	
+0x081:                      | loop:
+0x081: 6333                 | xorq %rbx, %rbx
+0x083: 50370000000000000000 | 	mrmovq (%rdi), %rbx	# val(%rbx) = *src
+0x08d: 30f80800000000000000 | 	irmovq $8, %r8
+0x097: 6087                 | 	addq  %r8, %rdi		# src++	
                             | 
-0x091: 40360000000000000000 | 	rmmovq %rbx, (%rsi)	# *dest = val
-0x09b: 30f80800000000000000 | 	irmovq $8, %r8
-0x0a5: 6086                 | 	addq %r8, %rsi		# dest++
+0x099: 40360000000000000000 | 	rmmovq %rbx, (%rsi)	# *dest = val
+0x0a3: 30f80800000000000000 | 	irmovq $8, %r8
+0x0ad: 6086                 | 	addq %r8, %rsi		# dest++
                             | 
-0x0a7: 6330                 | 	xorq %rbx, %rax		# result ^= val
+0x0af: 6330                 | 	xorq %rbx, %rax		# result ^= val
                             | 
                             | #	irmovq $1, %r8	used as the loop counter
                             | #	addq %r8, %r9
                             | 	
-0x0a9: 30f80100000000000000 | 	irmovq $1, %r8
-0x0b3: 6182                 | 	subq %r8, %rdx		# len--
-0x0b5: 747900000000000000   | 	jne loop
-0x0be:                      | done:
-0x0be: b03f                 | 	popq %rbx
-0x0c0: 90                   | 	ret			# Return
-0x0c1:                      | debug:
-0x0c1: 00                   | 	halt
+0x0b1: 30f80100000000000000 | 	irmovq $1, %r8
+0x0bb: 6182                 | 	subq %r8, %rdx		# len--
+0x0bd: 748100000000000000   | 	jne loop
+0x0c6:                      | done:
+0x0c6: b03f                 | 	popq %rbx
+0x0c8: 90                   | 	ret			# Return
+0x0c9:                      | debug:
+0x0c9: 00                   | 	halt
                             | 
                             | 
 0x128:                      | .pos 0x128

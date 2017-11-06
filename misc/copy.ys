@@ -4,7 +4,11 @@
 	irmovq dest,%rsi	# dest, second argument
 	irmovq src,%rdi		# src, first argument
 	pushq %r8
+	pushq %rsi
+	pushq %rdi
 	call copy_block
+	popq %rdi
+	popq %rsi
 	popq %r8
 	halt
 

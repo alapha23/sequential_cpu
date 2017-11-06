@@ -1,7 +1,9 @@
 # Initial code
 	irmovq Stack,%rsp
 	irmovq ele1, %rdi
+	pushq %r8
 	call rsum_list
+	popq %r8
 	halt
 
 # Sample linked list
