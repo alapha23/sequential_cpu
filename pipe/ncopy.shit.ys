@@ -18,16 +18,15 @@ ncopy:
 ##################################################################
 # You can modify this portion
 	# Loop header
-	#xorq %rax, %rax		# count = 0;
 	iaddq $-1, %rdx		# len <= 1
 	jle Rolling		# if so, goto Rolling:
 Loop:
 	mrmovq (%rdi), %r10	# read val from src...
 	mrmovq 8(%rdi), %r11	# read val from src...
 
-	andq %r10, %r10		# val <= 0?
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 	rmmovq %r11, 8(%rsi)	# ...and store it to dst
+	andq %r10, %r10		# val <= 0?
 
 	jle Npos1		# if so, goto Npos:
 	iaddq $1, %rax		# count++

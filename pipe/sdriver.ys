@@ -37,8 +37,15 @@ ncopy:
 Loop:
 	mrmovq (%rdi), %r10	# read val from src...
 	mrmovq 8(%rdi), %r11	# read val from src...
+	mrmovq 16(%rdi), %r12	# read val from src...
+	mrmovq 24(%rdi), %r13	# read val from src...
+	mrmovq 32(%rdi), %r14	# read val from src...
+
 
 	andq %r10, %r10		# val <= 0?
+	rmmovq %r12, 16(%rsi)	# ...and store it to dst
+	rmmovq %r13, 24(%rsi)	# ...and store it to dst
+	rmmovq %r14, 32(%rsi)	# ...and store it to dst
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 	rmmovq %r11, 8(%rsi)	# ...and store it to dst
 
@@ -51,13 +58,7 @@ Npos1:
 	iaddq $1, %rax		# count++
 Npos2:
 
-	mrmovq 16(%rdi), %r12	# read val from src...
-	mrmovq 24(%rdi), %r13	# read val from src...
-
 	andq %r12, %r12		# val <= 0?
-	rmmovq %r12, 16(%rsi)	# ...and store it to dst
-	rmmovq %r13, 24(%rsi)	# ...and store it to dst
-
 	jle Npos3		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos3:
@@ -65,9 +66,7 @@ Npos3:
 	jle Npos4		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos4:
-	mrmovq 32(%rdi), %r14	# read val from src...
 	iaddq $40, %rdi
-	rmmovq %r14, 32(%rsi)	# ...and store it to dst
 	iaddq $40, %rsi
 	andq %r14, %r14		# val <= 0?
 	jle Npos5		# if so, goto Npos:
@@ -77,6 +76,7 @@ Npos5:
 	jg Loop		# if so, len -= 3; goto Loop:
 
 Rolling:
+	je ADD5
 	iaddq $5, %rdx
 	jle Done
 
@@ -92,7 +92,47 @@ Npos:
 	iaddq $8, %rsi
 	andq %rdx, %rdx
 	jg RLoop
+	ret
 
+ADD5:
+	mrmovq (%rdi), %r10	# read val from src...
+	mrmovq 8(%rdi), %r11	# read val from src...
+	mrmovq 16(%rdi), %r12	# read val from src...
+	mrmovq 24(%rdi), %r13	# read val from src...
+	mrmovq 32(%rdi), %r14	# read val from src...
+
+
+	andq %r10, %r10		# val <= 0?
+	rmmovq %r12, 16(%rsi)	# ...and store it to dst
+	rmmovq %r13, 24(%rsi)	# ...and store it to dst
+	rmmovq %r14, 32(%rsi)	# ...and store it to dst
+	rmmovq %r10, (%rsi)	# ...and store it to dst
+	rmmovq %r11, 8(%rsi)	# ...and store it to dst
+
+	jle Npos1		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos1:
+	
+	andq %r11, %r11		# val <= 0?
+	jle Npos2		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos2:
+
+	andq %r12, %r12		# val <= 0?
+	jle Npos3		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos3:
+	andq %r13, %r13		# val <= 0?
+	jle Npos4		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos4:
+	iaddq $40, %rdi
+	iaddq $40, %rsi
+	andq %r14, %r14		# val <= 0?
+	jle Npos5		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos5:
+	
 
 
 ##################################################################
