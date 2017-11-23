@@ -19,48 +19,100 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	#xorq %rax, %rax		# count = 0;
-	iaddq $-5, %rdx		# len <= 5
+	iaddq $-4, %rdx		# len <= 5
 	jle Rolling		# if so, goto Rolling:
 Loop:
 	mrmovq (%rdi), %r10	# read val from src...
-	andq %r10, %r10		# val <= 0?
+	iaddq $8, %rdi
 	rmmovq %r10, (%rsi)	# ...and store it to dst
-	jle Npos1		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Npos1:
-	
-	mrmovq 8(%rdi), %r11	# read val from src...
-	andq %r11, %r11		# val <= 0?
-	rmmovq %r11, 8(%rsi)	# ...and store it to dst
-	jle Npos2		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Npos2:
+	iaddq $8, %rsi
 
-	mrmovq 16(%rdi), %r12	# read val from src...
-	andq %r12, %r12		# val <= 0?
-	rmmovq %r12, 16(%rsi)	# ...and store it to dst
-	jle Npos3		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Npos3:
-	mrmovq 24(%rdi), %r13	# read val from src...
+	
+	mrmovq (%rdi), %r11	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r11, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
+
+	mrmovq (%rdi), %r12	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r12, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
+
+	mrmovq (%rdi), %r13	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r13, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
+
+
+	andq %r10, %r10		# val > 0?
+	jle Npos1		# if so, goto Npos:
+
+	andq %r11, %r11
+	jle Npos2
+
+	andq %r12, %r12
+	jle Npos3
+
 	andq %r13, %r13		# val <= 0?
-	rmmovq %r13, 24(%rsi)	# ...and store it to dst
-	jle Npos4		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Npos4:
-	mrmovq 32(%rdi), %r14	# read val from src...
-	iaddq $40, %rdi
-	rmmovq %r14, 32(%rsi)	# ...and store it to dst
-	iaddq $40, %rsi
-	andq %r14, %r14		# val <= 0?
+	jle ADD3		# if so, goto Npos:
+ADD4:
+	iaddq $4, %rax
+	jmp Npos5
+Npos3:
+	andq %r13, %r13		# val <= 0?
+	jle ADD2		# if so, goto Npos:
+ADD3:
+	iaddq $3, %rax
+	jmp Npos5
+Npos2:
+	andq %r12, %r12
+	jle Npos3N
+
+	andq %r13, %r13		# val <= 0?
+	jle ADD2		# if so, goto Npos:
+	iaddq $3, %rax		# add 3
+	jmp Npos5
+Npos3N:
+	andq %r13, %r13		# val <= 0?
+	jle ADD1		# if so, goto Npos:
+ADD2:
+	iaddq $2, %rax
+	jmp Npos5
+Npos1:
+	andq %r11, %r11		# val <= 0?
+	jle Npos1N2N		# if so, goto Npos:
+
+	andq %r12, %r12		# val <= 0?
+	jle Npos1N3N		# if so, goto Npos:
+
+	andq %r13, %r13		# val <= 0?
+	jle ADD2		# if so, goto Npos:
+Npos1N3N:
+	andq %r13, %r13
+	jg ADD2
+ADD1:
+	iaddq $1, %rax
+	jmp Npos5
+Npos1N2N:
+	andq %r12, %r12		# val <= 0?
+	jle Npos1N2N3N		# if so, goto Npos:
+
+	andq %r13, %r13		# val <= 0?
+	jle ADD1		# if so, goto Npos:
+	iaddq $2, %rax
+	jmp Npos5
+Npos1N2N3N:
+	andq %r13, %r13		# val <= 0?
 	jle Npos5		# if so, goto Npos:
-	iaddq $1, %rax		# count++
+	iaddq $1, %rax
+
 Npos5:
-	iaddq $-5, %rdx		# len >= 3?	
+
+	iaddq $-4, %rdx		# len >= 3?	
 	jg Loop		# if so, len -= 3; goto Loop:
 
 Rolling:
-	iaddq $5, %rdx
+	iaddq $4, %rdx
 	jle Done
 
 RLoop:
@@ -75,6 +127,12 @@ Npos:
 	iaddq $8, %rsi
 	andq %rdx, %rdx
 	jg RLoop
+	ret
+
+
+
+
+
 
 
 

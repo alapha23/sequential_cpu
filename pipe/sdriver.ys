@@ -31,50 +31,40 @@ ncopy:
 ##################################################################
 # You can modify this portion
 	# Loop header
-	xorq %rax, %rax		# count = 0;
+	#xorq %rax, %rax		# count = 0;
 	iaddq $-5, %rdx		# len <= 5
 	jle Rolling		# if so, goto Rolling:
 Loop:
 	mrmovq (%rdi), %r10	# read val from src...
-	iaddq $8, %rdi
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	iaddq $8, %rsi
 	andq %r10, %r10		# val <= 0?
+	rmmovq %r10, (%rsi)	# ...and store it to dst
 	jle Npos1		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos1:
-
 	
-	mrmovq (%rdi), %r11	# read val from src...
-	iaddq $8, %rdi
-	rmmovq %r11, (%rsi)	# ...and store it to dst
-	iaddq $8, %rsi
+	mrmovq 8(%rdi), %r11	# read val from src...
 	andq %r11, %r11		# val <= 0?
+	rmmovq %r11, 8(%rsi)	# ...and store it to dst
 	jle Npos2		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos2:
 
-	mrmovq (%rdi), %r12	# read val from src...
-	iaddq $8, %rdi
-	rmmovq %r12, (%rsi)	# ...and store it to dst
-	iaddq $8, %rsi
+	mrmovq 16(%rdi), %r12	# read val from src...
 	andq %r12, %r12		# val <= 0?
+	rmmovq %r12, 16(%rsi)	# ...and store it to dst
 	jle Npos3		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos3:
-
-	mrmovq (%rdi), %r13	# read val from src...
-	iaddq $8, %rdi
-	rmmovq %r13, (%rsi)	# ...and store it to dst
-	iaddq $8, %rsi
+	mrmovq 24(%rdi), %r13	# read val from src...
 	andq %r13, %r13		# val <= 0?
+	rmmovq %r13, 24(%rsi)	# ...and store it to dst
 	jle Npos4		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos4:
-	mrmovq (%rdi), %r14	# read val from src...
-	iaddq $8, %rdi
-	rmmovq %r14, (%rsi)	# ...and store it to dst
-	iaddq $8, %rsi
+	mrmovq 32(%rdi), %r14	# read val from src...
+	iaddq $40, %rdi
+	rmmovq %r14, 32(%rsi)	# ...and store it to dst
+	iaddq $40, %rsi
 	andq %r14, %r14		# val <= 0?
 	jle Npos5		# if so, goto Npos:
 	iaddq $1, %rax		# count++
@@ -84,7 +74,6 @@ Npos5:
 
 Rolling:
 	iaddq $5, %rdx
-	andq %rdx, %rdx		# if len <= 0
 	jle Done
 
 RLoop:
@@ -99,6 +88,9 @@ Npos:
 	iaddq $8, %rsi
 	andq %rdx, %rdx
 	jg RLoop
+
+
+
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.
