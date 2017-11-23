@@ -32,48 +32,58 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	xorq %rax, %rax		# count = 0;
-	iaddq $-2, %rdx		# len <= 2
+	iaddq $-5, %rdx		# len <= 5
 	jle Rolling		# if so, goto Rolling:
-	iaddq $-1, %rdx	
 Loop:
 	mrmovq (%rdi), %r10	# read val from src...
+	iaddq $8, %rdi
 	rmmovq %r10, (%rsi)	# ...and store it to dst
-	iaddq $8, %rdi
 	iaddq $8, %rsi
-
-	mrmovq (%rdi), %r11	# read val from src...
-	rmmovq %r11, (%rsi)	# ...and store it to dst
-	iaddq $8, %rdi
-	iaddq $8, %rsi
-
-	mrmovq (%rdi), %r12	# read val from src...
-	rmmovq %r12, (%rsi)	# ...and store it to dst
-	iaddq $8, %rdi
-	iaddq $8, %rsi
-
-#	mrmovq (%rdi), %r13	# read val from src...
-#	rmmovq %r13, (%rsi)	# ...and store it to dst
-#	iaddq $8, %rdi
-#	iaddq $8, %rsi
-
 	andq %r10, %r10		# val <= 0?
 	jle Npos1		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos1:
+
+	
+	mrmovq (%rdi), %r11	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r11, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
 	andq %r11, %r11		# val <= 0?
 	jle Npos2		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos2:
+
+	mrmovq (%rdi), %r12	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r12, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
 	andq %r12, %r12		# val <= 0?
 	jle Npos3		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos3:
-	iaddq $-3, %rdx		# len >= 3?	
+
+	mrmovq (%rdi), %r13	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r13, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
+	andq %r13, %r13		# val <= 0?
+	jle Npos4		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos4:
+	mrmovq (%rdi), %r14	# read val from src...
+	iaddq $8, %rdi
+	rmmovq %r14, (%rsi)	# ...and store it to dst
+	iaddq $8, %rsi
+	andq %r14, %r14		# val <= 0?
+	jle Npos5		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos5:
+	iaddq $-5, %rdx		# len >= 3?	
 	jg Loop		# if so, len -= 3; goto Loop:
-	iaddq $1, %rdx
 
 Rolling:
-	iaddq $2, %rdx
+	iaddq $5, %rdx
 	andq %rdx, %rdx		# if len <= 0
 	jle Done
 
@@ -105,10 +115,10 @@ EndFun:
 ###############################
 	.align 8
 src:
-	.quad 1
+	.quad -1
 	.quad -2
 	.quad 3
-	.quad -4
+	.quad 4
 	.quad 0xbcdefa # This shouldn't get moved
 
 	.align 16
