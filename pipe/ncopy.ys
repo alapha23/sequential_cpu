@@ -19,20 +19,18 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	#xorq %rax, %rax		# count = 0;
-	iaddq $-5, %rdx		# len <= 5
+	iaddq $-4, %rdx		# len <= 5
 	jle Rolling		# if so, goto Rolling:
 Loop:
 	mrmovq (%rdi), %r10	# read val from src...
 	mrmovq 8(%rdi), %r11	# read val from src...
 	mrmovq 16(%rdi), %r12	# read val from src...
 	mrmovq 24(%rdi), %r13	# read val from src...
-	mrmovq 32(%rdi), %r14	# read val from src...
 
 
 	andq %r10, %r10		# val <= 0?
 	rmmovq %r12, 16(%rsi)	# ...and store it to dst
 	rmmovq %r13, 24(%rsi)	# ...and store it to dst
-	rmmovq %r14, 32(%rsi)	# ...and store it to dst
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 	rmmovq %r11, 8(%rsi)	# ...and store it to dst
 
@@ -53,75 +51,22 @@ Npos3:
 	jle Npos4		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 Npos4:
-	iaddq $40, %rdi
-	iaddq $40, %rsi
-	andq %r14, %r14		# val <= 0?
-	jle Npos5		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Npos5:
-	iaddq $-5, %rdx		# len >= 3?	
+	iaddq $32, %rdi
+	iaddq $32, %rsi
+
+	iaddq $-4, %rdx		# len >= 3?	
 	jg Loop		# if so, len -= 3; goto Loop:
 
 Rolling:
-	je ADD5
-	iaddq $3, %rdx
+	je ADD4
+	iaddq $1, %rdx
+	je ADD3
+	iaddq $1, %rdx
 	je ADD2
 	iaddq $1, %rdx
 	je ADD1
 	iaddq $1, %rdx
 	jle Done
-
-RLoop:
-	mrmovq (%rdi), %r10	
-	rmmovq %r10, (%rsi)
-	andq %r10, %r10
-	jle Npos
-	iaddq $1, %rax		# counter++
-Npos:
-	iaddq $-1, %rdx		# len--
-	iaddq $8, %rdi	
-	iaddq $8, %rsi
-	andq %rdx, %rdx
-	jg RLoop
-	ret
-
-ADD5:
-	mrmovq (%rdi), %r10	# read val from src...
-	mrmovq 8(%rdi), %r11	# read val from src...
-	mrmovq 16(%rdi), %r12	# read val from src...
-	mrmovq 24(%rdi), %r13	# read val from src...
-	mrmovq 32(%rdi), %r14	# read val from src...
-
-
-	andq %r10, %r10		# val <= 0?
-	rmmovq %r12, 16(%rsi)	# ...and store it to dst
-	rmmovq %r13, 24(%rsi)	# ...and store it to dst
-	rmmovq %r14, 32(%rsi)	# ...and store it to dst
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	rmmovq %r11, 8(%rsi)	# ...and store it to dst
-
-	jle Nposadd1		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Nposadd1:
-	
-	andq %r11, %r11		# val <= 0?
-	jle Nposadd2		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Nposadd2:
-
-	andq %r12, %r12		# val <= 0?
-	jle Nposadd3		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Nposadd3:
-	andq %r13, %r13		# val <= 0?
-	jle Nposadd4		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-Nposadd4:
-	andq %r14, %r14		# val <= 0?
-	jle Done		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-	ret	
-
 ADD2:
 	mrmovq (%rdi), %r10	# read val from src...
 	mrmovq 8(%rdi), %r11	# read val from src...
@@ -143,7 +88,59 @@ ADD1:
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 	jle Done		# if so, goto Npos:
 	iaddq $1, %rax		# count++
+	ret
+ADD3:
+	mrmovq (%rdi), %r10	# read val from src...
+	mrmovq 8(%rdi), %r11	# read val from src...
+	mrmovq 16(%rdi), %r12	# read val from src...
+
+	andq %r10, %r10		# val <= 0?
+	rmmovq %r12, 16(%rsi)	# ...and store it to dst
+	rmmovq %r10, (%rsi)	# ...and store it to dst
+	rmmovq %r11, 8(%rsi)	# ...and store it to dst
+
+	jle Nposadd31		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Nposadd31:
 	
+	andq %r11, %r11		# val <= 0?
+	jle Nposadd32		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Nposadd32:
+
+	andq %r12, %r12		# val <= 0?
+	jle Done		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+	ret
+ADD4:
+	mrmovq (%rdi), %r10	# read val from src...
+	mrmovq 8(%rdi), %r11	# read val from src...
+	mrmovq 16(%rdi), %r12	# read val from src...
+	mrmovq 24(%rdi), %r13	# read val from src...
+
+	andq %r10, %r10		# val <= 0?
+	rmmovq %r12, 16(%rsi)	# ...and store it to dst
+	rmmovq %r13, 24(%rsi)	# ...and store it to dst
+	rmmovq %r10, (%rsi)	# ...and store it to dst
+	rmmovq %r11, 8(%rsi)	# ...and store it to dst
+
+	jle Nposadd41		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Nposadd41:
+	
+	andq %r11, %r11		# val <= 0?
+	jle Nposadd42		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Nposadd42:
+
+	andq %r12, %r12		# val <= 0?
+	jle Nposadd43		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Nposadd43:
+	andq %r13, %r13		# val <= 0?
+	jle Done		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+
 
 ##################################################################
 # Do not modify the following section of code
