@@ -1,16 +1,3 @@
-#######################################################################
-# Test for copying block of size 4;
-#######################################################################
-	.pos 0
-main:	irmovq Stack, %rsp  	# Set up stack pointer
-
-	# Set up arguments for copy function and then invoke it
-	irmovq $4, %rdx		# src and dst have 4 elements
-	irmovq dest, %rsi	# dst array
-	irmovq src, %rdi	# src array
-	call ncopy		 
-	halt			# should halt with num nonzeros in %rax
-StartFun:
 #/* $begin ncopy-ys */
 ##################################################################
 # ncopy.ys - Copy a src block of len words to dst.
@@ -77,9 +64,7 @@ Npos5:
 
 Rolling:
 	je ADD5
-	iaddq $3, %rdx
-	je ADD2
-	iaddq $1, %rdx
+	iaddq $4, %rdx
 	je ADD1
 	iaddq $1, %rdx
 	jle Done
@@ -113,43 +98,28 @@ ADD5:
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 	rmmovq %r11, 8(%rsi)	# ...and store it to dst
 
-	jle Nposadd1		# if so, goto Npos:
+	jle Npos1		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Nposadd1:
+Npos1:
 	
 	andq %r11, %r11		# val <= 0?
-	jle Nposadd2		# if so, goto Npos:
+	jle Npos2		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Nposadd2:
+Npos2:
 
 	andq %r12, %r12		# val <= 0?
-	jle Nposadd3		# if so, goto Npos:
+	jle Npos3		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Nposadd3:
+Npos3:
 	andq %r13, %r13		# val <= 0?
-	jle Nposadd4		# if so, goto Npos:
+	jle Npos4		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Nposadd4:
+Npos4:
 	andq %r14, %r14		# val <= 0?
 	jle Done		# if so, goto Npos:
 	iaddq $1, %rax		# count++
 	ret	
 
-ADD2:
-	mrmovq (%rdi), %r10	# read val from src...
-	mrmovq 8(%rdi), %r11	# read val from src...
-
-	andq %r10, %r10		# val <= 0?
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	rmmovq %r11, 8(%rsi)	# ...and store it to dst
-
-	jle ADD2N		# if so, goto Npos:
-	iaddq $1, %rax		# count++
-ADD2N:
-	andq %r11, %r11
-	jle Done
-	iaddq $1, %rax
-	ret
 ADD1:
 	mrmovq (%rdi), %r10	# read val from src...
 	andq %r10, %r10		# val <= 0?
@@ -167,47 +137,3 @@ Done:
 # Keep the following label at the end of your function
 End:
 #/* $end ncopy-ys */
-EndFun:
-
-###############################
-# Source and destination blocks 
-###############################
-	.align 8
-src:
-	.quad 1
-	.quad 2
-	.quad -3
-	.quad -4
-	.quad 0xbcdefa # This shouldn't get moved
-
-	.align 16
-Predest:
-	.quad 0xbcdefa
-dest:
-	.quad 0xcdefab
-	.quad 0xcdefab
-	.quad 0xcdefab
-	.quad 0xcdefab
-Postdest:
-	.quad 0xdefabc
-
-.align 8
-# Run time stack
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-	.quad 0
-
-Stack:
