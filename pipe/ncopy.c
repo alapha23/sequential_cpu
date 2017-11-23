@@ -13,7 +13,26 @@ word_t ncopy(word_t *src, word_t *dst, word_t len)
 {
     word_t count = 0;
     word_t val;
+   
+   if (len <= 2)
+	  goto RLoop;
+    do {
+    	val = *src++;
+	*dst++ = val;
+	if (val > 0)
+	    count++;
+	val = *src++;
+	*dst++ = val;
+	if (val > 0)
+	    count++;
+	val = *src++;
+	*dst++ = val;
+	if (val > 0)
+	    count++;
+	len -= 3;
+    }while(len > 0);
 
+RLoop:
     while (len > 0) {
 	val = *src++;
 	*dst++ = val;

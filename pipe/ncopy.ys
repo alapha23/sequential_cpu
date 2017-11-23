@@ -4,6 +4,8 @@
 # Return the number of positive words (>0) contained in src.
 #
 # Include your name and ID here.
+# Gao Zhiyuan
+# 2017-81842
 #
 # Describe how and why you modified the baseline code.
 #
@@ -16,23 +18,64 @@ ncopy:
 ##################################################################
 # You can modify this portion
 	# Loop header
-	xorq %rax,%rax		# count = 0;
-	andq %rdx,%rdx		# len <= 0?
-	jle Done		# if so, goto Done:
-
-Loop:	mrmovq (%rdi), %r10	# read val from src...
+	xorq %rax, %rax		# count = 0;
+	iaddq $-2, %rdx		# len <= 2
+	jle Rolling		# if so, goto Rolling:
+	iaddq $-1, %rdx	
+Loop:
+	mrmovq (%rdi), %r10	# read val from src...
 	rmmovq %r10, (%rsi)	# ...and store it to dst
+	iaddq $8, %rdi
+	iaddq $8, %rsi
+
+	mrmovq (%rdi), %r11	# read val from src...
+	rmmovq %r11, (%rsi)	# ...and store it to dst
+	iaddq $8, %rdi
+	iaddq $8, %rsi
+
+	mrmovq (%rdi), %r12	# read val from src...
+	rmmovq %r12, (%rsi)	# ...and store it to dst
+	iaddq $8, %rdi
+	iaddq $8, %rsi
+
+#	mrmovq (%rdi), %r13	# read val from src...
+#	rmmovq %r13, (%rsi)	# ...and store it to dst
+#	iaddq $8, %rdi
+#	iaddq $8, %rsi
+
 	andq %r10, %r10		# val <= 0?
-	jle Npos		# if so, goto Npos:
-	irmovq $1, %r10
-	addq %r10, %rax		# count++
-Npos:	irmovq $1, %r10
-	subq %r10, %rdx		# len--
-	irmovq $8, %r10
-	addq %r10, %rdi		# src++
-	addq %r10, %rsi		# dst++
-	andq %rdx,%rdx		# len > 0?
-	jg Loop			# if so, goto Loop:
+	jle Npos1		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos1:
+	andq %r11, %r11		# val <= 0?
+	jle Npos2		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos2:
+	andq %r12, %r12		# val <= 0?
+	jle Npos3		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos3:
+	iaddq $-3, %rdx		# len >= 3?	
+	jg Loop		# if so, len -= 3; goto Loop:
+	iaddq $1, %rdx
+
+Rolling:
+	iaddq $2, %rdx
+	andq %rdx, %rdx		# if len <= 0
+	jle Done
+
+RLoop:
+	mrmovq (%rdi), %r10	
+	rmmovq %r10, (%rsi)
+	andq %r10, %r10
+	jle Npos
+	iaddq $1, %rax		# counter++
+Npos:
+	iaddq $-1, %rdx		# len--
+	iaddq $8, %rdi	
+	iaddq $8, %rsi
+	andq %rdx, %rdx
+	jg RLoop
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.
